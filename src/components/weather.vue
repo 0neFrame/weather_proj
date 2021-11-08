@@ -8,21 +8,21 @@
       <div class="card__wrapper_current_location">
         <div class="card__wrapper_title">
           <span class="card__city"
-            >{{ currentLocation.name }}, {{ currentLocation.sys.country }}</span
+            >{{ currentLocation.name }}, {{ currentLocation.country }}</span
           >
           <span class="card__subtitle">Your current location</span>
         </div>
         <div class="card__wrapper_info">
           <span>Weather</span>
-          <span>{{ currentLocation.weather[0].main }}</span>
+          <span>{{ currentLocation.mainWeather }}</span>
         </div>
         <div class="card__wrapper_info">
           <span>Temperature</span>
-          <span> {{ currentLocation.main.temp }} &deg;C </span>
+          <span> {{ currentLocation.temp }} &deg;C </span>
         </div>
         <div class="card__wrapper_info">
           <span>Humidity</span>
-          <span>{{ currentLocation.main.humidity }} %</span>
+          <span>{{ currentLocation.humidity }} %</span>
         </div>
         <div class="card__time_ago">
           <span> {{ currentLocation.timeAgo }} </span>
@@ -173,6 +173,11 @@ export default {
         return response.json();
       });
       cityObj.main.temp = Math.round(cityObj.main.temp - 273.15);
+      cityObj.country = cityObj.sys.country;
+      cityObj.mainWeather = cityObj.weather[0].main;
+      cityObj.temp = cityObj.main.temp;
+      cityObj.humidity = cityObj.main.humidity;
+
       this.currentLocation = cityObj;
       this.getTimeAgo(this.currentLocation);
     });
@@ -232,7 +237,7 @@ export default {
           } else {
             this.currentLocation.timeout = setTimeout(() => {
               this.getTimeAgo(this.currentLocation, false);
-            }, 1000 * 5);
+            }, 1000 * 60);
           }
           obj.timer = false;
         } else {
@@ -253,7 +258,7 @@ export default {
           } else {
             this.cityItems[indexCity].timeout = setTimeout(() => {
               this.getTimeAgo(this.cityItems[indexCity], false);
-            }, 1000 * 5);
+            }, 1000 * 60);
           }
           obj.timer = false;
         }
