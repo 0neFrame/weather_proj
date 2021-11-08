@@ -44,19 +44,19 @@
       >
         <div class="card__wrapper_title">
           <span class="card__city">{{ city.name }}</span>
-          <span class="card__subtitle">{{ city.sys.country }}</span>
+          <span class="card__subtitle">{{ city.country }}</span>
         </div>
         <div class="card__wrapper_info">
           <span>Weather</span>
-          <span>{{ city.weather[0].main }}</span>
+          <span>{{ city.mainWeather }}</span>
         </div>
         <div class="card__wrapper_info">
           <span>Temperature</span>
-          <span> {{ city.main.temp }} &deg;C </span>
+          <span> {{ city.temp }} &deg;C </span>
         </div>
         <div class="card__wrapper_info">
           <span>Humidity</span>
-          <span>{{ city.main.humidity }} %</span>
+          <span>{{ city.humidity }} %</span>
         </div>
         <div class="card__time_ago">
           <span> {{ city.timeAgo }} </span>
@@ -208,6 +208,10 @@ export default {
           return response.json();
         });
         getUpdate.main.temp = Math.round(getUpdate.main.temp - 273.15);
+        getUpdate.country = getUpdate.sys.country;
+        getUpdate.mainWeather = getUpdate.weather[0].main;
+        getUpdate.temp = getUpdate.main.temp;
+        getUpdate.humidity = getUpdate.main.humidity;
       }
 
       obj.timer = true;
@@ -271,6 +275,11 @@ export default {
         return response.json();
       });
       getCity.main.temp = Math.round(getCity.main.temp - 273.15);
+      getCity.country = getCity.sys.country;
+      getCity.mainWeather = getCity.weather[0].main;
+      getCity.temp = getCity.main.temp;
+      getCity.humidity = getCity.main.humidity;
+
       this.cityItems.unshift(getCity);
       this.getTimeAgo(this.cityItems[0]);
 
@@ -293,6 +302,12 @@ export default {
         return response.json();
       });
       getCity.main.temp = Math.round(getCity.main.temp - 273.15);
+      getCity.main.temp = Math.round(getCity.main.temp - 273.15);
+      getCity.country = getCity.sys.country;
+      getCity.mainWeather = getCity.weather[0].main;
+      getCity.temp = getCity.main.temp;
+      getCity.humidity = getCity.main.humidity;
+
       this.cityItems.unshift(getCity);
       this.getTimeAgo(this.cityItems[0]);
     },
