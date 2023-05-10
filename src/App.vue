@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import weather from "./components/weather.vue";
+import weather from "./page/weather.vue";
 
 export default {
   name: "App",
