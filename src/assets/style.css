@@ -68,7 +68,7 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  margin: 50px 30px;
+  margin: 10px 30px;
 }
 
 .card__wrapper_inner {
