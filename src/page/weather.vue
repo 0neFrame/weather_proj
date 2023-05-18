@@ -147,31 +147,24 @@ export default {
     },
     reloadCycle(updateWeather, reload) {
       const findIndexCity = this.cityList.findIndex((city) => city.id === updateWeather.id);
-      this.checkCityTimeAgo(findIndexCity, updateWeather, reload);
+
+      if (findIndexCity === -1) {
+        this.checkWeatherTimeAgo(this, "currentLocation", updateWeather, reload);
+      } else {
+        this.checkWeatherTimeAgo(this.cityList, findIndexCity, updateWeather, reload);
+      }
     },
-    checkCityTimeAgo(indx, updateWeather, reload) {
+    checkWeatherTimeAgo(obj, indx, updateWeather, reload) {
       const oneMin = 1000 * 60;
 
-      if (indx === -1) {
-        if (reload) {
-          clearTimeout(this.currentLocation.timeout);
-          this.currentLocation = updateWeather;
-          this.updateTimeAgo(this.currentLocation, false);
-        } else {
-          this.currentLocation.timeout = setTimeout(() => {
-            this.updateTimeAgo(this.currentLocation, false);
-          }, oneMin);
-        }
+      if (reload) {
+        clearTimeout(obj[indx].timeout);
+        this.$set(obj, indx, updateWeather);
+        this.updateTimeAgo(obj[indx], false);
       } else {
-        if (reload) {
-          clearTimeout(this.cityList[indx].timeout);
-          this.$set(this.cityList, indx, updateWeather);
-          this.updateTimeAgo(this.cityList[indx], false);
-        } else {
-          this.cityList[indx].timeout = setTimeout(() => {
-            this.updateTimeAgo(this.cityList[indx], false);
-          }, oneMin);
-        }
+        obj[indx].timeout = setTimeout(() => {
+          this.updateTimeAgo(obj[indx], false);
+        }, oneMin);
       }
     },
     add() {
