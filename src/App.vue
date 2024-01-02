@@ -5,12 +5,10 @@
 </template>
 
 <script>
-import weather from "./page/weather.vue";
+  import weather from "./page/weather.vue";
 
-export default {
-  name: "App",
-  components: {
-    weather,
-  },
-};
+  export default {
+    name: "App",
+    components: { weather },
+  };
 </script>

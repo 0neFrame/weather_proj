@@ -60,157 +60,157 @@
       </div>
     </div>
 
-    <template>
-      <button class="page__add" @click="showModal = true">+</button>
-      <transition v-if="showModal">
-        <div class="modal__mask">
-          <div class="modal__wrapper">
-            <div class="modal__container">
-              <div class="modal__header">
-                <span class="modal__header_title"> Choose a city </span>
-                <span class="modal__header_subtitle"> To find city start typing </span>
-              </div>
+    <button class="page__add" @click="showModal = true">+</button>
+    <transition v-if="showModal">
+      <div class="modal__mask">
+        <div class="modal__wrapper">
+          <div class="modal__container">
+            <div class="modal__header">
+              <span class="modal__header_title"> Choose a city </span>
+              <span class="modal__header_subtitle"> To find city start typing </span>
+            </div>
 
-              <div class="modal__body">
-                <input v-model="$v.city.$model" cols="40" rows="1" type="text" placeholder="Search city" />
-                <div class="input__error" v-if="!$v.city.required && $v.city.$error">Enter a city</div>
-                <div class="input__error" v-if="error">{{ error }}</div>
-              </div>
+            <div class="modal__body">
+              <input v-model="v$.city.$model" cols="40" rows="1" type="text" placeholder="Search city" />
+              <div class="input__error" v-if="!v$.city.required && v$.city.$error">Enter a city</div>
+              <div class="input__error" v-if="error">{{ error }}</div>
+            </div>
 
-              <div>
-                <button class="modal__btn_add" :disabled="$v.city.$model === ''" @click="add()">ADD</button>
-                <button class="modal__btn_cancel" @click="cancel()">CANCEL</button>
-
-                <button class="modal__btn_clear" :disabled="$v.city.$model === ''" @click="$v.city.$model = ''">CLEAR</button>
-              </div>
+            <div>
+              <button class="modal__btn_add" :disabled="v$.city.$model === ''" @click="add()">ADD</button>
+              <button class="modal__btn_cancel" @click="cancel()">CANCEL</button>
+              <button class="modal__btn_clear" :disabled="v$.city.$model === ''" @click="v$.city.$model = ''">CLEAR</button>
             </div>
           </div>
         </div>
-      </transition>
-    </template>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
-import { required } from "vuelidate/lib/validators";
-import { setWeatherProperty } from "@/function/weather.js";
+  import { useVuelidate } from "@vuelidate/core";
+  import { required } from "@vuelidate/validators";
 
-export default {
-  name: "weather",
+  import { setWeatherProperty } from "@/function/weather.js";
 
-  data() {
-    return {
-      city: "",
-      cityList: [],
-      currentLocation: null,
-      error: "",
-      showModal: false,
-    };
-  },
+  export default {
+    name: "weather",
 
-  validations: {
-    city: {
-      required,
+    validations() {
+      return {
+        city: { required },
+      };
     },
-  },
 
-  created() {
-    this.getCityStorage();
-    this.getCurrentPosition();
-  },
+    data() {
+      return {
+        v$: useVuelidate(),
 
-  watch: {
-    cityList() {
-      this.setCityStorage();
+        city: "",
+        cityList: [],
+        currentLocation: null,
+        error: "",
+        showModal: false,
+      };
     },
-  },
 
-  methods: {
-    getCurrentPosition() {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setWeatherProperty(position.coords).then((cityWeather) => {
-          this.currentLocation = cityWeather;
-          this.updateTimeAgo(this.currentLocation, false);
-        });
-      });
+    created() {
+      this.getCityStorage();
     },
-    updateTimeAgo(city, reload = true) {
-      if (reload) {
-        setWeatherProperty(city.id).then((cityWeather) => {
-          this.reloadCycle(cityWeather, reload);
-        });
-      } else {
-        let updateWeather = city;
-        updateWeather.fromNow = city.dt.fromNow();
-        this.reloadCycle(updateWeather, reload);
-      }
-    },
-    reloadCycle(updateWeather, reload) {
-      const findIndexCity = this.cityList.findIndex((city) => city.id === updateWeather.id);
 
-      if (findIndexCity === -1) {
-        this.checkWeatherTimeAgo(this, "currentLocation", updateWeather, reload);
-      } else {
-        this.checkWeatherTimeAgo(this.cityList, findIndexCity, updateWeather, reload);
-      }
+    watch: {
+      cityList() {
+        this.setCityStorage();
+      },
     },
-    checkWeatherTimeAgo(obj, indx, updateWeather, reload) {
-      const oneMin = 1000 * 60;
 
-      if (reload) {
-        clearTimeout(obj[indx].timeout);
-        this.$set(obj, indx, updateWeather);
-        this.updateTimeAgo(obj[indx], false);
-      } else {
-        obj[indx].timeout = setTimeout(() => {
-          this.updateTimeAgo(obj[indx], false);
-        }, oneMin);
-      }
-    },
-    add() {
-      setWeatherProperty(this.$v.city.$model)
-        .then((cityWeather) => {
-          this.cityList.push(cityWeather);
-          this.updateTimeAgo(cityWeather);
-
-          this.showModal = false;
-          this.$v.city.$model = "";
-          this.$v.$reset();
-        })
-        .catch(() => {
-          this.error = "City not found";
-        });
-    },
-    cancel() {
-      this.showModal = false;
-
-      this.error = "";
-
-      this.$v.city.$model = "";
-      this.$v.$reset();
-    },
-    remove(index) {
-      this.cityList.splice(index, 1);
-    },
-    setCityStorage() {
-      const cities = this.cityList.map((city) => {
-        return { id: city.id };
-      });
-
-      localStorage.setItem("cities", JSON.stringify(cities));
-    },
-    getCityStorage() {
-      const storageCities = JSON.parse(localStorage.getItem("cities"));
-
-      if (storageCities) {
-        storageCities.forEach((city) => {
-          setWeatherProperty(city.id).then((cityWeather) => {
-            this.cityList.push(cityWeather);
-            this.updateTimeAgo(cityWeather);
+    methods: {
+      getCurrentPosition() {
+        navigator.geolocation.getCurrentPosition((position) => {
+          setWeatherProperty(position.coords).then((cityWeather) => {
+            this.currentLocation = cityWeather;
+            this.updateTimeAgo(this.currentLocation, false);
           });
         });
-      }
+      },
+      updateTimeAgo(city, reload = true) {
+        if (reload) {
+          setWeatherProperty(city.id).then((cityWeather) => {
+            this.reloadCycle(cityWeather, reload);
+          });
+        } else {
+          let updateWeather = city;
+          updateWeather.fromNow = city.dt.fromNow();
+          this.reloadCycle(updateWeather, reload);
+        }
+      },
+      reloadCycle(updateWeather, reload) {
+        const findIndexCity = this.cityList.findIndex((city) => city.id === updateWeather.id);
+
+        if (findIndexCity === -1) {
+          this.checkWeatherTimeAgo(this, "currentLocation", updateWeather, reload);
+        } else {
+          this.checkWeatherTimeAgo(this.cityList, findIndexCity, updateWeather, reload);
+        }
+      },
+      checkWeatherTimeAgo(obj, indx, updateWeather, reload) {
+        const oneMin = 1000 * 60;
+
+        if (reload) {
+          clearTimeout(obj[indx].timeout);
+          obj[indx] = updateWeather;
+          this.updateTimeAgo(obj[indx], false);
+        } else {
+          obj[indx].timeout = setTimeout(() => {
+            this.updateTimeAgo(obj[indx], false);
+          }, oneMin);
+        }
+      },
+      add() {
+        setWeatherProperty(this.v$.city.$model)
+          .then((cityWeather) => {
+            this.cityList.push(cityWeather);
+            this.updateTimeAgo(cityWeather);
+
+            this.showModal = false;
+            this.v$.city.$model = "";
+            this.v$.$reset();
+          })
+          .catch(() => {
+            this.error = "City not found";
+          });
+      },
+      cancel() {
+        this.showModal = false;
+        this.error = "";
+        this.v$.city.$model = "";
+        this.v$.$reset();
+      },
+      remove(index) {
+        this.cityList.splice(index, 1);
+      },
+      setCityStorage() {
+        const cities = this.cityList.map((city) => {
+          return { id: city.id };
+        });
+
+        localStorage.setItem("cities", JSON.stringify(cities));
+      },
+      getCityStorage() {
+        const storageCities = JSON.parse(localStorage.getItem("cities"));
+
+        if (storageCities) {
+          storageCities.forEach((city) => {
+            setWeatherProperty(city.id).then((cityWeather) => {
+              this.cityList.push(cityWeather);
+              this.updateTimeAgo(cityWeather);
+            });
+          });
+        }
+
+        this.getCurrentPosition();
+      },
     },
-  },
-};
+  };
 </script>

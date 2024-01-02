@@ -18,12 +18,8 @@ async function getWeather(searchParam) {
   }
 
   params = new URLSearchParams(params).toString();
-
   const response = await fetch(mainUrl + params);
-
-  if (response.ok) {
-    return response.json();
-  }
+  if (response.ok) return response.json();
 }
 
 async function setWeatherProperty(coord) {
